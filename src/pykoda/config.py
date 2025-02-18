@@ -7,7 +7,8 @@ import appdirs
 CONFIG_FILE = appdirs.user_config_dir('pykoda')
 if os.path.exists(CONFIG_FILE):
     parser = configparser.ConfigParser()
-    parser.read(CONFIG_FILE)
+    # Create manually a config file there with the following content: [all] api_key = 
+    parser.read(CONFIG_FILE + "/config.ini")
     config_data = parser['all']
 else:
     config_data = dict()

@@ -49,7 +49,7 @@ def get_graph(company: str, date: str, hour: int):
 
     # Assign Voronoi regions
     kdtree = spatial.cKDTree(projected_coordinates)
-    dist, ids = kdtree.query(all_stops_projected, n_jobs=-1)
+    dist, ids = kdtree.query(all_stops_projected, workers=-1)
 
     # Save the vales in the data frames
     all_stops_data['zone'] = ids
@@ -91,8 +91,12 @@ def spectral_graph_analysis(company, date):
     G, static_data, all_stops_data, special_stops_data = get_graph(company, date, 9)
 
     # Now we can compute a few graph metrics
-    centrality = nx.eigenvector_centrality_numpy(G)
-    pagerank = nx.pagerank_scipy(G)
+    try:
+        centrality = nx.eigenvector_centrality_numpy(G)
+    except nx.exception.AmbiguousSolution as e:
+        centrality = nx.betweenness_centrality(G)
+        print("Error: ambiguous results because of disconnected graphs, computing betweenness centrality instead")
+    pagerank = nx.pagerank(G)
     spectrum = dict(zip(G.nodes, np.abs(nx.adjacency_spectrum(G))))
     modularity_spectrum = dict(zip(G.nodes, np.abs(nx.modularity_spectrum(nx.DiGraph(G)))))
 
