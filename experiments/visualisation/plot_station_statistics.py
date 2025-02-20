@@ -92,6 +92,6 @@ def plot_station_statistics(company, date):
 
 if __name__ == '__main__':
     COMPANY = 'otraf'
-    DATE = '2020_08_21'
+    DATE = '2022_03_22'
     plot_station_statistics(COMPANY, DATE)
     plt.show()

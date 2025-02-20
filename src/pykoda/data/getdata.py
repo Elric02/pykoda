@@ -86,7 +86,7 @@ def unpack_jsons(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _get_data_path(company: str, feed: str, date: str, hour: (int, str)) -> str:
-    return f'{config.CACHE_DIR}/{company}_{feed}_{date.replace("-", "_")}_{hour}.feather'
+    return f'{config.CACHE_DIR}\\{company}_{feed}_{date.replace("-", "_")}_{hour}.feather'
 
 
 def _parse_gtfs(gtfsrt: bytes) -> pd.DataFrame:

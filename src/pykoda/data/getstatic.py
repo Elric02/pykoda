@@ -19,11 +19,13 @@ Supported companies:
 Supported date format: YYYY-MM-DD
 '''
 import os
+import platform
 
 import ey
 
 from .. import config
 from .getdata import download_file
+import subprocess
 
 
 def _get_static_data_path(company: str, date: str) -> str:
@@ -32,7 +34,7 @@ def _get_static_data_path(company: str, date: str) -> str:
 
 def get_static_data(date: str, company: str, outfolder: (str, None) = None) -> None:
     if outfolder is None:
-        outfolder = _get_static_data_path(company, date)
+        outfolder = _get_static_data_path(company, date).replace("/", "\\")
 
     # admit both _ and -
     date = date.replace('_', '-')
@@ -42,7 +44,10 @@ def get_static_data(date: str, company: str, outfolder: (str, None) = None) -> N
     # ------------------------------------------------------------------------
     # Create data dir
     # ------------------------------------------------------------------------
-    ey.shell('mkdir -p {outfolder}'.format(outfolder=outfolder))
+    try:
+        ey.shell('mkdir -p {outfolder}'.format(outfolder=outfolder))
+    except subprocess.CalledProcessError as e:
+        print("Non-fatal error: command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 
     # ------------------------------------------------------------------------
     # Download data
@@ -65,5 +70,8 @@ def get_static_data(date: str, company: str, outfolder: (str, None) = None) -> N
     # ------------------------------------------------------------------------
     # Extract .zip bz2 archive
     # ------------------------------------------------------------------------
-    untar = ey.shell((
-        'unzip -d {outfolder} {archive}'.format(outfolder=outfolder, archive=download.outputs['file'])))
+    if platform.system() == "Windows":
+        command = 'tar -xf {archive} -C {outfolder}'.format(archive=download.outputs['file'], outfolder=outfolder)
+    else:
+        command = 'unzip -d {outfolder} {archive}'.format(outfolder=outfolder, archive=download.outputs['file'])
+    untar = ey.shell((command))
